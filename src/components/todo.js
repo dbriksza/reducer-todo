@@ -1,35 +1,68 @@
 import React from "react";
 import { useState, useReducer } from "react";
 import { reducer, initialState } from "../reducers/reducer";
-import TodoDisplay from "./tododisplay";
 
 const Todo = () => {
-  const [{ name }, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [input, setInput] = useState();
-  const [newTodo, setNewTodo] = useState(initialState.todos);
 
   const handleChanges = e => {
     setInput(e.target.value);
   };
+  const handleSubmit = e => {
+    e.preventDefault();
+    dispatch({ type: "ADD_NEW_TODO", payload: input });
+    setInput("");
+  };
+  const filterCompleted = () => {
+    // e.preventDefault();
+    dispatch({ type: "REMOVE_COMPLETED" });
+  };
 
   return (
-    <div>
-      {newTodo.map(todo => (
-        <TodoDisplay item={todo.item} completed={todo.completed} id={todo.id} />
-      ))}
-      <input
-        className="Todo-input"
-        type="text"
-        name="newTodo"
-        value={input}
-        onChange={handleChanges}
-      />
-      <button
-        onClick={() => dispatch({ type: "ADD_NEW_TODO", payload: input })}
-      >
-        Update Todo
-      </button>
-    </div>
+    <>
+      <>
+        {state.todos.map(todos => {
+          if (todos.completed === true) {
+            return (
+              <>
+                <input
+                  onClick={() => (todos.completed = !todos.completed)}
+                  type="checkbox"
+                  id={todos.id}
+                  name="todo"
+                  checked
+                />
+                <label htmlFor={todos.id}>{todos.item}</label>
+              </>
+            );
+          } else if (todos.completed === false) {
+            return (
+              <>
+                <input
+                  onClick={() => (todos.completed = !todos.completed)}
+                  type="checkbox"
+                  id={todos.id}
+                  name="todo"
+                />
+                <label htmlFor={todos.id}>{todos.item}</label>
+              </>
+            );
+          }
+        })}
+      </>
+      <form onSubmit={handleSubmit}>
+        <input
+          className="Todo-input"
+          type="text"
+          name="newTodo"
+          value={input}
+          onChange={handleChanges}
+        />
+        <input type="submit" value="Submit" />
+      </form>
+      <button onClick={() => filterCompleted()}>Remove Completed</button>
+    </>
   );
 };
 
